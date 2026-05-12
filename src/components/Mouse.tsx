@@ -1,0 +1,219 @@
+import type { Pose, Expression } from '../data/poses';
+
+type Props = {
+  pose: Pose;
+};
+
+function Eyes({ expression }: { expression: Expression }) {
+  if (expression === 'wink') {
+    return (
+      <>
+        <circle cx="82" cy="72" r="6" fill="#2a1a1a" />
+        <circle cx="80" cy="70" r="2" fill="#fff" />
+        <path
+          d="M112,72 Q118,68 124,72"
+          stroke="#2a1a1a"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+      </>
+    );
+  }
+  const r = expression === 'excited' ? 7 : 6;
+  return (
+    <>
+      <circle cx="82" cy="72" r={r} fill="#2a1a1a" />
+      <circle cx="80" cy="70" r="2" fill="#fff" />
+      <circle cx="118" cy="72" r={r} fill="#2a1a1a" />
+      <circle cx="116" cy="70" r="2" fill="#fff" />
+    </>
+  );
+}
+
+function Mouth({ expression }: { expression: Expression }) {
+  if (expression === 'excited') {
+    return (
+      <path
+        d="M90,92 Q100,104 110,92 Q100,100 90,92 Z"
+        fill="#cc3355"
+        stroke="#2a1a1a"
+        strokeWidth="1.5"
+      />
+    );
+  }
+  if (expression === 'silly') {
+    return (
+      <>
+        <path
+          d="M88,92 Q100,100 112,92"
+          stroke="#2a1a1a"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <ellipse cx="103" cy="98" rx="4" ry="2" fill="#ff5577" />
+      </>
+    );
+  }
+  if (expression === 'cool') {
+    return (
+      <path
+        d="M88,94 Q100,96 112,90"
+        stroke="#2a1a1a"
+        strokeWidth="2.5"
+        fill="none"
+        strokeLinecap="round"
+      />
+    );
+  }
+  return (
+    <path
+      d="M88,92 Q100,98 112,92"
+      stroke="#2a1a1a"
+      strokeWidth="2.5"
+      fill="none"
+      strokeLinecap="round"
+    />
+  );
+}
+
+export function Mouse({ pose }: Props) {
+  const bodyTransform = `translate(0 ${pose.bodyY}) rotate(${pose.bodyTilt} 100 110)`;
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      width="100%"
+      height="100%"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ overflow: 'visible' }}
+    >
+      <defs>
+        <radialGradient id="body-grad" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="#e9dcc1" />
+          <stop offset="100%" stopColor="#c8b896" />
+        </radialGradient>
+        <radialGradient id="head-grad" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="#ede0c8" />
+          <stop offset="100%" stopColor="#c8b896" />
+        </radialGradient>
+        <radialGradient id="ear-grad" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="#ffc8d4" />
+          <stop offset="100%" stopColor="#ff9eb5" />
+        </radialGradient>
+      </defs>
+
+      <path
+        d={pose.tail}
+        stroke="#c8b896"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        style={{ transition: 'd 0.18s ease' }}
+      />
+
+      <g
+        style={{
+          transition: 'transform 0.18s cubic-bezier(.34,1.56,.64,1)',
+        }}
+        transform={bodyTransform}
+      >
+        <ellipse
+          cx="60"
+          cy="155"
+          rx="14"
+          ry="9"
+          fill="#b8a886"
+          transform={`rotate(${pose.legL} 60 145)`}
+          style={{ transition: 'transform 0.18s ease' }}
+        />
+        <ellipse
+          cx="140"
+          cy="155"
+          rx="14"
+          ry="9"
+          fill="#b8a886"
+          transform={`rotate(${pose.legR} 140 145)`}
+          style={{ transition: 'transform 0.18s ease' }}
+        />
+
+        <ellipse cx="100" cy="130" rx="55" ry="48" fill="url(#body-grad)" />
+        <ellipse cx="100" cy="140" rx="34" ry="32" fill="#f8efd9" opacity="0.85" />
+
+        <ellipse
+          cx="55"
+          cy="125"
+          rx="11"
+          ry="20"
+          fill="#c8b896"
+          transform={`rotate(${pose.armL} 60 110)`}
+          style={{ transition: 'transform 0.18s ease' }}
+        />
+        <ellipse
+          cx="145"
+          cy="125"
+          rx="11"
+          ry="20"
+          fill="#c8b896"
+          transform={`rotate(${pose.armR} 140 110)`}
+          style={{ transition: 'transform 0.18s ease' }}
+        />
+
+        <ellipse
+          cx="68"
+          cy="40"
+          rx="18"
+          ry="22"
+          fill="url(#head-grad)"
+          transform="rotate(-22 68 40)"
+        />
+        <ellipse
+          cx="69"
+          cy="44"
+          rx="10"
+          ry="14"
+          fill="url(#ear-grad)"
+          transform="rotate(-22 69 44)"
+        />
+        <ellipse
+          cx="132"
+          cy="40"
+          rx="18"
+          ry="22"
+          fill="url(#head-grad)"
+          transform="rotate(22 132 40)"
+        />
+        <ellipse
+          cx="131"
+          cy="44"
+          rx="10"
+          ry="14"
+          fill="url(#ear-grad)"
+          transform="rotate(22 131 44)"
+        />
+
+        <circle cx="100" cy="75" r="42" fill="url(#head-grad)" />
+
+        <ellipse cx="72" cy="88" rx="9" ry="6" fill="#ffb8c8" opacity="0.7" />
+        <ellipse cx="128" cy="88" rx="9" ry="6" fill="#ffb8c8" opacity="0.7" />
+
+        <Eyes expression={pose.expression} />
+
+        <ellipse cx="100" cy="86" rx="5" ry="3.5" fill="#ff5577" />
+        <Mouth expression={pose.expression} />
+
+        <path
+          d="M100,90 L100,94"
+          stroke="#2a1a1a"
+          strokeWidth="1.5"
+          fill="none"
+        />
+
+        <line x1="60" y1="86" x2="78" y2="84" stroke="#8a7860" strokeWidth="1" />
+        <line x1="60" y1="90" x2="78" y2="90" stroke="#8a7860" strokeWidth="1" />
+        <line x1="122" y1="84" x2="140" y2="86" stroke="#8a7860" strokeWidth="1" />
+        <line x1="122" y1="90" x2="140" y2="90" stroke="#8a7860" strokeWidth="1" />
+      </g>
+    </svg>
+  );
+}
