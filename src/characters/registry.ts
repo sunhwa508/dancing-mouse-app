@@ -13,6 +13,7 @@ export const characters: CharacterManifest[] = [
     width: 139,
     height: 266,
     defaultScale: 300,
+    assetVersion: '2',
     credit: 'Tenor — Rat Rat Dance',
   },
 ];
