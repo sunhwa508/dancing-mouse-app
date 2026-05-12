@@ -38,7 +38,12 @@ export default function OverlayApp() {
     <div className={`overlay ${isDancing ? 'dancing' : 'idle'}`}>
       <div className="drag-handle" />
       <div className="rat-wrap">
-        <img src="/rat-dance.gif" alt="dancing rat" className="rat" draggable={false} />
+        <img
+          src={isDancing ? '/rat-dance.gif' : '/rat-static.png'}
+          alt="dancing rat"
+          className="rat"
+          draggable={false}
+        />
         <Sparkles trigger={trigger} />
       </div>
     </div>

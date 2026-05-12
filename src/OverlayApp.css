@@ -64,7 +64,7 @@ body,
 }
 
 .overlay.idle .rat-wrap {
-  animation: breathe 2.6s ease-in-out infinite;
+  animation: none;
 }
 
 @keyframes breathe {
