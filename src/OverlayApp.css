@@ -48,19 +48,7 @@ body,
 }
 
 .rat {
-  animation: bop 0.18s ease;
-}
-
-@keyframes bop {
-  0% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-6px) scale(1.03);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-  }
+  /* no extra bounce — frame swap itself is the animation */
 }
 
 .sparkle-layer {
