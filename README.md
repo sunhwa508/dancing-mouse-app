@@ -77,13 +77,50 @@ scripts/
 └── fix-keylistener-perms.cjs       # node-global-key-listener 바이너리 chmod +x
 ```
 
+## 캐릭터 추가
+
+오버레이는 캐릭터 팩 구조로 되어 있습니다.
+
+```
+public/characters/<id>/
+├── frame-001.png ... frame-NNN.png   # 알파 채널 PNG 시퀀스 (배경 제거됨)
+└── thumb.png                          # 설정 화면 썸네일
+src/characters/registry.ts             # 메타데이터 등록
+```
+
+새 캐릭터 추가는 헬퍼 스크립트로 한 방에:
+
+```bash
+# 1) 한 번만: 배경 제거용 Python venv 셋업
+python3 -m venv .venv
+.venv/bin/pip install "rembg[cpu,cli]"
+
+# 2) 캐릭터 인제스트
+scripts/add-character.sh <gif-url> <id> [every-N=8] [scale-w=200]
+
+# 예시:
+scripts/add-character.sh https://media1.tenor.com/.../cat-dance.gif cat
+```
+
+스크립트가 GIF 다운로드 → ffmpeg 으로 프레임 추출 → `rembg birefnet-general` 로 배경 제거 →
+썸네일 생성까지 자동 수행하고 마지막에 `src/characters/registry.ts` 에 붙여 넣을 메타데이터를
+출력합니다. 그것만 등록하면 설정 패널의 캐릭터 그리드에 자동 등장.
+
+## 오버레이 설정 (⚙)
+
+오버레이 위에 마우스 올리면 우상단에 톱니바퀴가 나타납니다.
+
+- **캐릭터 선택** — 그리드에서 클릭
+- **크기 조절** — 120 ~ 600 px 슬라이더 (Electron 창 자체가 IPC 로 리사이즈됨)
+- **종료** — 앱 quit
+- 설정은 `localStorage` 에 저장되어 다음 실행 시 복원됨
+
 ## 다음 단계 아이디어
 
 - 사운드: Web Audio API 로 키 입력 시 부드러운 팝 사운드
-- 콤보 효과: 연타 시 더 격렬한 애니메이션
-- 트레이 아이콘 + 위치 저장 + 캐릭터 크기 조절
-- 캐릭터 스킨 (생쥐 외에 토끼, 곰 등)
-- 프로덕션 패키징 (`electron-builder` 로 .dmg 빌드)
+- 콤보 효과: 연타 시 더 격렬한 애니메이션 / 다른 sparkle 패턴
+- 캐릭터 팩 마켓플레이스 (드래그&드롭으로 폴더 인제스트)
+- 프로덕션 패키징 (`electron-builder` 로 .dmg 빌드 + 코드 사인)
 
 ## 라이선스
 

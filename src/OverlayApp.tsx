@@ -1,31 +1,84 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Sparkles } from './components/Sparkles';
+import { Settings } from './components/Settings';
+import { characters, getCharacter } from './characters/registry';
+import { framePath } from './characters/types';
 import './OverlayApp.css';
 
 declare global {
   interface Window {
     dancingMouseApi?: {
       onKeystroke: (cb: (payload: { name: string; vKey: number }) => void) => () => void;
+      setWindowSize: (width: number, height: number) => void;
+      quit: () => void;
     };
   }
 }
 
-const FRAME_COUNT = 32;
-const FRAME_VERSION = 'v2';
+const STORAGE_KEY = 'dancing-mouse-settings:v1';
+const MIN_SCALE = 120;
+const MAX_SCALE = 600;
+const CHROME_PAD = 24; // extra px around character for sparkles room
 
-function framePath(i: number): string {
-  const n = String((i % FRAME_COUNT) + 1).padStart(3, '0');
-  return `/rat-frames/rat-${n}.png?${FRAME_VERSION}`;
+type Settings = {
+  charId: string;
+  scale: number; // height in px
+};
+
+function loadSettings(): Settings {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.charId === 'string' && typeof parsed.scale === 'number') {
+        return parsed;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  const first = characters[0];
+  return { charId: first.id, scale: first.defaultScale };
+}
+
+function saveSettings(s: Settings) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    // ignore
+  }
 }
 
 export default function OverlayApp() {
+  const [settings, setSettings] = useState<Settings>(() => loadSettings());
+  const character = getCharacter(settings.charId);
+
   const [frameIndex, setFrameIndex] = useState(0);
   const [trigger, setTrigger] = useState(0);
   const [pulseId, setPulseId] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
+
+  // Compute & sync window size to render area
+  const renderHeight = settings.scale;
+  const renderWidth = Math.round(renderHeight * (character.width / character.height));
+  const winWidth = renderWidth + CHROME_PAD;
+  const winHeight = renderHeight + CHROME_PAD;
+
+  useEffect(() => {
+    window.dancingMouseApi?.setWindowSize(winWidth, winHeight);
+  }, [winWidth, winHeight]);
+
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
+
+  useEffect(() => {
+    setFrameIndex(0);
+  }, [character.id]);
 
   useEffect(() => {
     const onAnyKey = () => {
-      setFrameIndex((i) => (i + 1) % FRAME_COUNT);
+      setFrameIndex((i) => (i + 1) % character.frameCount);
       setTrigger((t) => t + 1);
       setPulseId((p) => p + 1);
     };
@@ -37,31 +90,56 @@ export default function OverlayApp() {
     const handler = () => onAnyKey();
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [character.frameCount]);
 
-  // Preload all frames once so swapping is instant
   const preload = useMemo(
     () =>
-      Array.from({ length: FRAME_COUNT }, (_, i) => (
-        <link key={i} rel="preload" as="image" href={framePath(i)} />
+      Array.from({ length: character.frameCount }, (_, i) => (
+        <link key={i} rel="preload" as="image" href={framePath(character, i)} />
       )),
-    [],
+    [character],
   );
 
   return (
     <div className="overlay">
       <div style={{ display: 'none' }}>{preload}</div>
       <div className="drag-handle" />
-      <div className="rat-wrap">
+
+      <button
+        className="settings-btn"
+        onClick={() => setShowSettings((v) => !v)}
+        title="settings"
+        aria-label="settings"
+      >
+        ⚙
+      </button>
+
+      <div
+        className="rat-wrap"
+        style={{ width: renderWidth, height: renderHeight }}
+      >
         <img
           key={pulseId}
-          src={framePath(frameIndex)}
-          alt="dancing rat"
+          src={framePath(character, frameIndex)}
+          alt={character.name}
           className="rat"
           draggable={false}
         />
         <Sparkles trigger={trigger} />
       </div>
+
+      {showSettings && (
+        <Settings
+          current={character}
+          scale={settings.scale}
+          minScale={MIN_SCALE}
+          maxScale={MAX_SCALE}
+          onPick={(id) => setSettings((s) => ({ ...s, charId: id }))}
+          onScale={(scale) => setSettings((s) => ({ ...s, scale }))}
+          onClose={() => setShowSettings(false)}
+          onQuit={window.dancingMouseApi?.quit}
+        />
+      )}
     </div>
   );
 }

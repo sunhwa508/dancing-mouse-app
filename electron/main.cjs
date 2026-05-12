@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, Menu, Tray, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, Menu, Tray, nativeImage } = require('electron');
 const path = require('node:path');
 
 let mainWindow = null;
@@ -8,11 +8,23 @@ let keyListener = null;
 const isDev = !app.isPackaged;
 const DEV_URL = 'http://localhost:5173/?overlay=1';
 
+ipcMain.on('set-window-size', (_event, { width, height }) => {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  const w = Math.max(80, Math.round(width));
+  const h = Math.max(80, Math.round(height));
+  mainWindow.setSize(w, h);
+});
+
+ipcMain.on('quit-app', () => {
+  app.quit();
+});
+
 function createWindow() {
   const display = screen.getPrimaryDisplay();
   const { width: sw, height: sh } = display.workAreaSize;
-  const w = 300;
-  const h = 400;
+  // Initial size — renderer will resize via IPC after reading saved settings.
+  const w = 240;
+  const h = 320;
 
   mainWindow = new BrowserWindow({
     width: w,
