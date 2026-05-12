@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Sparkles } from './components/Sparkles';
 import './OverlayApp.css';
 
@@ -10,19 +10,23 @@ declare global {
   }
 }
 
-const IDLE_MS = 600;
+const FRAME_COUNT = 32;
+
+function framePath(i: number): string {
+  const n = String((i % FRAME_COUNT) + 1).padStart(3, '0');
+  return `/rat-frames/rat-${n}.png`;
+}
 
 export default function OverlayApp() {
+  const [frameIndex, setFrameIndex] = useState(0);
   const [trigger, setTrigger] = useState(0);
-  const [isDancing, setIsDancing] = useState(false);
-  const idleTimer = useRef<number | null>(null);
+  const [pulseId, setPulseId] = useState(0);
 
   useEffect(() => {
     const onAnyKey = () => {
+      setFrameIndex((i) => (i + 1) % FRAME_COUNT);
       setTrigger((t) => t + 1);
-      setIsDancing(true);
-      if (idleTimer.current !== null) clearTimeout(idleTimer.current);
-      idleTimer.current = window.setTimeout(() => setIsDancing(false), IDLE_MS);
+      setPulseId((p) => p + 1);
     };
 
     if (window.dancingMouseApi) {
@@ -34,12 +38,23 @@ export default function OverlayApp() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // Preload all frames once so swapping is instant
+  const preload = useMemo(
+    () =>
+      Array.from({ length: FRAME_COUNT }, (_, i) => (
+        <link key={i} rel="preload" as="image" href={framePath(i)} />
+      )),
+    [],
+  );
+
   return (
-    <div className={`overlay ${isDancing ? 'dancing' : 'idle'}`}>
+    <div className="overlay">
+      <div style={{ display: 'none' }}>{preload}</div>
       <div className="drag-handle" />
       <div className="rat-wrap">
         <img
-          src={isDancing ? '/rat-dance.gif' : '/rat-static.png'}
+          key={pulseId}
+          src={framePath(frameIndex)}
           alt="dancing rat"
           className="rat"
           draggable={false}
