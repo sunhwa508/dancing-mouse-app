@@ -10,7 +10,7 @@ export const characters: CharacterManifest[] = [
     name: 'Pedro Dance Rat',
     emoji: '🐀',
     frameCount: 32,
-    width: 200,
+    width: 139,
     height: 266,
     defaultScale: 300,
     credit: 'Tenor — Rat Rat Dance',
