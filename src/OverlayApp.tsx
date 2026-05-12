@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mouse } from './components/Mouse';
 import { Sparkles } from './components/Sparkles';
-import { poses } from './data/poses';
 import './OverlayApp.css';
 
 declare global {
@@ -15,14 +13,12 @@ declare global {
 const IDLE_MS = 600;
 
 export default function OverlayApp() {
-  const [poseIndex, setPoseIndex] = useState(0);
   const [trigger, setTrigger] = useState(0);
   const [isDancing, setIsDancing] = useState(false);
   const idleTimer = useRef<number | null>(null);
 
   useEffect(() => {
     const onAnyKey = () => {
-      setPoseIndex((i) => (i + 1) % poses.length);
       setTrigger((t) => t + 1);
       setIsDancing(true);
       if (idleTimer.current !== null) clearTimeout(idleTimer.current);
@@ -38,13 +34,11 @@ export default function OverlayApp() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  const pose = poses[poseIndex];
-
   return (
     <div className={`overlay ${isDancing ? 'dancing' : 'idle'}`}>
       <div className="drag-handle" />
-      <div className="mouse-wrap">
-        <Mouse pose={pose} />
+      <div className="rat-wrap">
+        <img src="/rat-dance.gif" alt="dancing rat" className="rat" draggable={false} />
         <Sparkles trigger={trigger} />
       </div>
     </div>

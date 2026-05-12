@@ -11,13 +11,14 @@ const DEV_URL = 'http://localhost:5173/?overlay=1';
 function createWindow() {
   const display = screen.getPrimaryDisplay();
   const { width: sw, height: sh } = display.workAreaSize;
-  const size = 360;
+  const w = 300;
+  const h = 400;
 
   mainWindow = new BrowserWindow({
-    width: size,
-    height: size,
-    x: sw - size - 40,
-    y: sh - size - 40,
+    width: w,
+    height: h,
+    x: sw - w - 40,
+    y: sh - h - 40,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -54,15 +55,20 @@ function startGlobalKeyListener() {
   try {
     const { GlobalKeyboardListener } = require('node-global-key-listener');
     keyListener = new GlobalKeyboardListener();
+    let keyCount = 0;
     keyListener.addListener((event) => {
-      if (!mainWindow || mainWindow.isDestroyed()) return;
       if (event.state !== 'DOWN') return;
+      keyCount += 1;
+      if (keyCount <= 5 || keyCount % 10 === 0) {
+        console.log(`[dancing-mouse] key #${keyCount}: ${event.name}`);
+      }
+      if (!mainWindow || mainWindow.isDestroyed()) return;
       mainWindow.webContents.send('global-keystroke', {
         name: event.name,
         vKey: event.vKey,
       });
     });
-    console.log('[dancing-mouse] global key listener started');
+    console.log('[dancing-mouse] global key listener started — try typing now');
   } catch (err) {
     console.error('[dancing-mouse] global key listener failed:', err.message);
     console.error(
