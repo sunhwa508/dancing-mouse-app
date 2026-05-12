@@ -15,9 +15,9 @@ declare global {
   }
 }
 
-const STORAGE_KEY = 'dancing-mouse-settings:v1';
-const MIN_SCALE = 120;
-const MAX_SCALE = 600;
+const STORAGE_KEY = 'dancing-mouse-settings:v2';
+const MIN_SCALE = 60;
+const MAX_SCALE = 800;
 const CHROME_PAD = 24; // extra px around character for sparkles room
 
 type Settings = {
