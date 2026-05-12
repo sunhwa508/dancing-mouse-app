@@ -58,13 +58,15 @@ function startGlobalKeyListener() {
     let keyCount = 0;
     keyListener.addListener((event) => {
       if (event.state !== 'DOWN') return;
+      const name = event.name || '';
+      if (name.startsWith('MOUSE')) return;
       keyCount += 1;
-      if (keyCount <= 5 || keyCount % 10 === 0) {
-        console.log(`[dancing-mouse] key #${keyCount}: ${event.name}`);
+      if (keyCount <= 5 || keyCount % 25 === 0) {
+        console.log(`[dancing-mouse] key #${keyCount}: ${name}`);
       }
       if (!mainWindow || mainWindow.isDestroyed()) return;
       mainWindow.webContents.send('global-keystroke', {
-        name: event.name,
+        name,
         vKey: event.vKey,
       });
     });
