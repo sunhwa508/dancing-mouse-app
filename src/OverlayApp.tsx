@@ -11,10 +11,11 @@ declare global {
 }
 
 const FRAME_COUNT = 32;
+const FRAME_VERSION = 'v2';
 
 function framePath(i: number): string {
   const n = String((i % FRAME_COUNT) + 1).padStart(3, '0');
-  return `/rat-frames/rat-${n}.png`;
+  return `/rat-frames/rat-${n}.png?${FRAME_VERSION}`;
 }
 
 export default function OverlayApp() {
